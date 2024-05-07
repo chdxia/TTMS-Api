@@ -14,24 +14,19 @@
         }
 
         /// <summary>
-        /// 获取权限列表
+        /// 获取根节点权限列表
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        public async Task<List<AuthPermissionResponse>> GetAuthPermissionListAsync(AuthPermissionRequest request)
+        public async Task<List<AuthPermissionWithChildrenResponse>> GetAuthPermissionWithoutParentListAsync(AuthPermissionRequest request)
         {
             var query = _fsql.Select<AuthPermission>()
                 .Where(a => !a.IsDelete)
+                .Where(a => string.IsNullOrEmpty(a.ParentCode))
                 .WhereIf(!string.IsNullOrEmpty(request.Name), a => a.Name.Contains(request.Name))
                 .WhereIf(request.IsDisable.HasValue, a => a.IsDisable == request.IsDisable)
-                .WhereIf(request.CreateTimeStart.HasValue, a => a.CreateTime >= request.CreateTimeStart)
-                .WhereIf(request.CreateTimeEnd.HasValue, a => a.CreateTime <= request.CreateTimeEnd)
-                .WhereIf(request.CreateBy.HasValue, a => a.CreateBy == request.CreateBy)
-                .WhereIf(request.UpdateTimeStart.HasValue, a => a.UpdateTime >= request.UpdateTimeStart)
-                .WhereIf(request.UpdateTimeEnd.HasValue, a => a.UpdateTime <= request.UpdateTimeEnd)
-                .WhereIf(request.UpdateBy.HasValue, a => a.UpdateBy == request.UpdateBy)
-                .OrderByDescending(a => a.CreateTime);
-            var listResponse = await query.ToListAsync<AuthPermissionResponse>();
+                .OrderByDescending(a => a.Sort);
+            var listResponse = await query.ToListAsync<AuthPermissionWithChildrenResponse>();
             var createByAndUpdateByIds = listResponse.Select(item => item.CreateBy).Union(listResponse.Select(item => item.UpdateBy)).Distinct();
             var createByAndUpdateByUsers = await _fsql.Select<User>().Where(a => createByAndUpdateByIds.Contains(a.Id)).ToListAsync();
             foreach (var item in listResponse)
@@ -43,40 +38,26 @@
         }
 
         /// <summary>
-        /// 分页获取权限列表
+        /// 递归查询子权限
         /// </summary>
-        /// <param name="request"></param>
+        /// <param name="parentCode"></param>
         /// <returns></returns>
-        public async Task<PageListAuthPermissionResponse> GetAuthPermissionPageListAsync(AuthPermissionRequest request)
+        public async Task<List<AuthPermissionWithChildrenResponse>> GetChildrenAuthPermissionRecursiveAsync(string? parentCode)
         {
-            var query = _fsql.Select<AuthPermission>()
-                .Where(a => !a.IsDelete)
-                .WhereIf(!string.IsNullOrEmpty(request.Name), a => a.Name.Contains(request.Name))
-                .WhereIf(request.IsDisable.HasValue, a => a.IsDisable == request.IsDisable)
-                .WhereIf(request.CreateTimeStart.HasValue, a => a.CreateTime >= request.CreateTimeStart)
-                .WhereIf(request.CreateTimeEnd.HasValue, a=> a.CreateTime <= request.CreateTimeEnd)
-                .WhereIf(request.CreateBy.HasValue, a=> a.CreateBy == request.CreateBy)
-                .WhereIf(request.UpdateTimeStart.HasValue, a=> a.UpdateTime >= request.UpdateTimeStart)
-                .WhereIf(request.UpdateTimeEnd.HasValue, a=> a.UpdateTime <= request.UpdateTimeEnd)
-                .WhereIf(request.UpdateBy.HasValue, a=> a.UpdateBy == request.UpdateBy)
-                .OrderByDescending(a => a.CreateTime);
-            var totalCount = await query.CountAsync();
-            var authPermissionItems = await query.Page(request.PageIndex, request.PageSize).ToListAsync<AuthPermissionResponse>();
-            var createByAndUpdateByIds = authPermissionItems.Select(item => item.CreateBy).Union(authPermissionItems.Select(item => item.UpdateBy)).Distinct();
-            var createByAndUpdateByUsers = await _fsql.Select<User>().Where(a => createByAndUpdateByIds.Contains(a.Id)).ToListAsync();
-            foreach (var item in authPermissionItems)
+            if (string.IsNullOrEmpty(parentCode))
             {
-                item.CreateByName = createByAndUpdateByUsers.FirstOrDefault(a => a.Id == item.CreateBy)?.UserName;
-                item.UpdateByName = createByAndUpdateByUsers.FirstOrDefault(a => a.Id == item.UpdateBy)?.UserName;
+                return new List<AuthPermissionWithChildrenResponse>();
             }
-            var pageListResponse = new PageListAuthPermissionResponse
+            var children = await _fsql.Select<AuthPermission>()
+                .Where(a => !a.IsDelete)
+                .Where(a => a.ParentCode == parentCode)
+                .OrderByDescending (a => a.Sort)
+                .ToListAsync<AuthPermissionWithChildrenResponse>();
+            foreach (var child in children)
             {
-                Items = authPermissionItems,
-                PageIndex = request.PageIndex,
-                PageSize = request.PageSize,
-                TotalCount = totalCount
-            };
-            return pageListResponse;
+                child.Children = await GetChildrenAuthPermissionRecursiveAsync(child.Code);
+            }
+            return children;
         }
 
         /// <summary>

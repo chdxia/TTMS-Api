@@ -8,14 +8,17 @@
     public class AuthPermissionController : BaseApiController
     {
         private readonly IAuthPermissionRepository _authPermissionRepository;
+        private readonly IAuthPermissionService _authPermissionService;
 
         /// <summary>
         /// 构造函数
         /// </summary>
         /// <param name="authPermissionRepository"></param>
-        public AuthPermissionController(IAuthPermissionRepository authPermissionRepository)
+        /// <param name="authPermissionService"></param>
+        public AuthPermissionController(IAuthPermissionRepository authPermissionRepository, IAuthPermissionService authPermissionService)
         {
             _authPermissionRepository = authPermissionRepository;
+            _authPermissionService = authPermissionService;
         }
 
         /// <summary>
@@ -27,20 +30,7 @@
         [ProducesResponseType(200, Type = typeof(ApiResultModel<List<AuthPermissionResponse>>))]
         public async Task<IActionResult> GetListAsync([FromBody] AuthPermissionRequest request)
         {
-            var result = await _authPermissionRepository.GetAuthPermissionListAsync(request);
-            return ToSuccessResult(result);
-        }
-
-        /// <summary>
-        /// 分页获取权限列表
-        /// </summary>
-        /// <param name="request"></param>
-        /// <returns></returns>
-        [HttpPost("GetPageList")]
-        [ProducesResponseType(200, Type = typeof(ApiResultModel<PageListAuthPermissionResponse>))]
-        public async Task<IActionResult> GetPageListAsync([FromBody] AuthPermissionRequest request)
-        {
-            var result = await _authPermissionRepository.GetAuthPermissionPageListAsync(request);
+            var result = await _authPermissionService.GetAuthPermissionAsync(request);
             return ToSuccessResult(result);
         }
 

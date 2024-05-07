@@ -19,46 +19,6 @@
         /// 是否禁用;t禁用;f启用
         /// </summary>
         public bool? IsDisable { get; set; }
-
-        /// <summary>
-        /// 创建人
-        /// </summary>
-        public int? CreateBy { get; set; }
-
-        /// <summary>
-        /// 创建时间
-        /// </summary>
-        public DateTime? CreateTimeStart { get; set; }
-
-        /// <summary>
-        /// 创建时间
-        /// </summary>
-        public DateTime? CreateTimeEnd { get; set; }
-
-        /// <summary>
-        /// 最后更新人
-        /// </summary>
-        public int? UpdateBy { get; set; }
-
-        /// <summary>
-        /// 最后更新时间
-        /// </summary>
-        public DateTime? UpdateTimeStart { get; set; }
-
-        /// <summary>
-        /// 最后更新时间
-        /// </summary>
-        public DateTime? UpdateTimeEnd { get; set; }
-
-        /// <summary>
-        /// 当前索引页
-        /// </summary>
-        public int PageIndex { get; set; } = 1;
-
-        /// <summary>
-        /// 页码大小
-        /// </summary>
-        public int PageSize { get; set; } = 20;
     }
 
     /// <summary>

@@ -77,13 +77,13 @@
     }
 
     /// <summary>
-    /// 返回分页数据;权限
+    /// 返回参数;权限;包含子权限
     /// </summary>
-    public class PageListAuthPermissionResponse : BasePageListResponse
+    public class AuthPermissionWithChildrenResponse : AuthPermissionResponse
     {
         /// <summary>
-        /// Items
+        /// 子权限列表
         /// </summary>
-        public new List<AuthPermissionResponse> Items { get; set; } = new List<AuthPermissionResponse>();
+        public List<AuthPermissionWithChildrenResponse> Children { get; set; } = new List<AuthPermissionWithChildrenResponse>();
     }
 }
