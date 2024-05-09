@@ -31,10 +31,16 @@
         public string? Description { get; set; }
 
         /// <summary>
-        /// 父级权限码
+        /// 父级权限id
         /// </summary>
-        [Column(Name = "parent_code", DbType = "varchar")]
-        public string? ParentCode { get; set; }
+        [Column(Name = "parent_id", DbType = "int8", IsNullable = true)]
+        public int? ParentId { get; set; }
+
+        /// <summary>
+        /// 权限层级
+        /// </summary>
+        [Column(Name = "level", DbType = "int8")]
+        public int Level { get; set; }
 
         /// <summary>
         /// url

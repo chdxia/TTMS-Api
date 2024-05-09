@@ -8,17 +8,14 @@
     public class AuthPermissionController : BaseApiController
     {
         private readonly IAuthPermissionRepository _authPermissionRepository;
-        private readonly IAuthPermissionService _authPermissionService;
 
         /// <summary>
         /// 构造函数
         /// </summary>
         /// <param name="authPermissionRepository"></param>
-        /// <param name="authPermissionService"></param>
-        public AuthPermissionController(IAuthPermissionRepository authPermissionRepository, IAuthPermissionService authPermissionService)
+        public AuthPermissionController(IAuthPermissionRepository authPermissionRepository)
         {
             _authPermissionRepository = authPermissionRepository;
-            _authPermissionService = authPermissionService;
         }
 
         /// <summary>
@@ -30,7 +27,7 @@
         [ProducesResponseType(200, Type = typeof(ApiResultModel<List<AuthPermissionResponse>>))]
         public async Task<IActionResult> GetListAsync([FromBody] AuthPermissionRequest request)
         {
-            var result = await _authPermissionService.GetAuthPermissionAsync(request);
+            var result = await _authPermissionRepository.GetAuthPermissionListAsync(request);
             return ToSuccessResult(result);
         }
 

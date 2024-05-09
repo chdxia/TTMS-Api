@@ -42,9 +42,15 @@
         public string? Description { get; set; }
 
         /// <summary>
-        /// 父级权限码
+        /// 父级权限id
         /// </summary>
-        public string? ParentCode { get; set; }
+        public int? ParentId { get; set; }
+
+        /// <summary>
+        /// 权限层级
+        /// </summary>
+        [Required(ErrorMessage = "Level is required.")]
+        public int Level { get; set; }
 
         /// <summary>
         /// url
@@ -54,11 +60,13 @@
         /// <summary>
         /// 排序
         /// </summary>
+        [Required(ErrorMessage = "Sort is required.")]
         public int Sort { get; set; }
 
         /// <summary>
         /// 是否禁用;t禁用;f启用
         /// </summary>
+        [Required(ErrorMessage = "IsDisable is required.")]
         public bool IsDisable { get; set; }
     }
 

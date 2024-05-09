@@ -26,9 +26,14 @@
         public string? Description { get; set; }
 
         /// <summary>
-        /// 父级权限码
+        /// 父级权限id
         /// </summary>
-        public string? ParentCode { get; set; }
+        public int? ParentId { get; set; }
+
+        /// <summary>
+        /// 权限层级
+        /// </summary>
+        public int Level { get; set; }
 
         /// <summary>
         /// url

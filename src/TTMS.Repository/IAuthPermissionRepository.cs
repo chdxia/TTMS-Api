@@ -3,18 +3,11 @@
     public interface IAuthPermissionRepository : IBaseRepository<AuthPermission, long>
     {
         /// <summary>
-        /// 获取根节点权限列表
+        /// 获取权限嵌套列表
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        Task<List<AuthPermissionWithChildrenResponse>> GetAuthPermissionWithoutParentListAsync(AuthPermissionRequest request);
-
-        /// <summary>
-        /// 递归查询子权限
-        /// </summary>
-        /// <param name="parentCode"></param>
-        /// <returns></returns>
-        Task<List<AuthPermissionWithChildrenResponse>> GetChildrenAuthPermissionRecursiveAsync(string? parentCode);
+        Task<List<AuthPermissionWithChildrenResponse>> GetAuthPermissionListAsync(AuthPermissionRequest request);
 
         /// <summary>
         /// 新增权限
