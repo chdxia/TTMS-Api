@@ -91,4 +91,15 @@
         /// </summary>
         public List<AuthPermissionWithChildrenResponse> Children { get; set; } = new List<AuthPermissionWithChildrenResponse>();
     }
+
+    /// <summary>
+    /// 返回参数;用户权限
+    /// </summary>
+    public class AuthUserPermissionResponse : AuthPermissionResponse
+    {
+        /// <summary>
+        /// 是否有权限;true有权限;false没权限
+        /// </summary>
+        public bool HasPermission { get; set; }
+    }
 }

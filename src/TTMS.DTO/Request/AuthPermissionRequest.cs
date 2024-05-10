@@ -93,4 +93,22 @@
         [Required(ErrorMessage = "AuthPermissionIds is required.")]
         public List<int> AuthPermissionIds { get; set; } = new List<int>();
     }
+
+    /// <summary>
+    /// 请求参数;编辑用户权限
+    /// </summary>
+    public class UpdateAuthUserPermissionRequest
+    {
+        /// <summary>
+        /// 用户id
+        /// </summary>
+        [Required(ErrorMessage = "UserId is required.")]
+        public int UserId { get; set; }
+
+        /// <summary>
+        /// 权限id
+        /// </summary>
+        [Required(ErrorMessage = "AuthPermissionIds is required.")]
+        public List<int> AuthPermissionIds { get; set; } = new List<int>();
+    }
 }

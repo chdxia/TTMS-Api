@@ -114,5 +114,31 @@
             await _userRepository.DeleteUserAsync(request);
             return ToSuccessResult();
         }
+
+        /// <summary>
+        /// 获取用户权限
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet("{id}/GetUserPermissionList")]
+        [ProducesResponseType(200, Type = typeof(ApiResultModel<List<AuthUserPermissionResponse>>))]
+        public async Task<IActionResult> GetUserPermissionListAsync(int id)
+        {
+            var result = await _userRepository.GetUserPermissionListAsync(id);
+            return ToSuccessResult(result);
+        }
+
+        /// <summary>
+        /// 编辑用户权限
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost("UpdateUserPermission")]
+        [ProducesResponseType(200, Type = typeof(ApiResultModel))]
+        public async Task<IActionResult> UpdateUserPermissionAsync([FromBody] UpdateAuthUserPermissionRequest request)
+        {
+            await _userRepository.UpdateUserPermissionAsync(request);
+            return ToSuccessResult();
+        }
     }
 }

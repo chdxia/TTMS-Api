@@ -1,9 +1,9 @@
 ﻿namespace TTMS.Domain
 {
     /// <summary>
-    /// 系统权限白名单
+    /// 系统权限
     /// </summary>
-    public static class AuthIgnorePermissionCode
+    public static class AuthPermissionCode
     {
         #region 登录
         /// <summary>

@@ -20,10 +20,11 @@
         public int UserId { get; set; }
 
         /// <summary>
-        /// 权限码
+        /// 外键;权限id
         /// </summary>
-        [Column(Name = "code", DbType = "varchar")]
-        public string? Code { get; set; }
+        [Column(Name = "permission_id", DbType = "int8")]
+        [Navigate(nameof(AuthPermission.Id))]
+        public int PermissionId { get; set; }
 
         /// <summary>
         /// 是否删除;t已删除:f未删除;默认未删除

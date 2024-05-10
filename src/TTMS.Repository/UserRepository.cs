@@ -133,10 +133,8 @@
             var hashWithNewSalt = SecurityUtility.HashWithNewSalt(request.PassWord);
             model.PassWord = hashWithNewSalt.hashedValue;
             model.Salt = hashWithNewSalt.salt;
-            if (_accessUserId != null)
-            {
-                model.CreateBy = model.UpdateBy = int.Parse(_accessUserId);
-            }
+            model.CreateBy = _accessUserId != null ? int.Parse(_accessUserId) : model.CreateBy;
+            model.UpdateBy = _accessUserId != null ? int.Parse(_accessUserId) : model.UpdateBy;
             try
             {
                 await InsertAsync(model);
@@ -179,10 +177,7 @@
                 model.PassWord = hashWithNewSalt.hashedValue;
                 model.Salt = hashWithNewSalt.salt;
             }
-            if (_accessUserId != null)
-            {
-                model.UpdateBy = int.Parse(_accessUserId);
-            }
+            model.UpdateBy = _accessUserId != null ? int.Parse(_accessUserId) : model.UpdateBy;
             model.UpdateTime = DateTime.Now;
             try
             {
@@ -218,15 +213,71 @@
                 .Set(a => a.IsDelete, true)
                 .Set(a => a.UpdateTime, DateTime.Now)
                 .Where(a => request.UserIds.Contains(a.Id));
-            if (_accessUserId != null)
-            {
-                update = update.Set(a => a.UpdateBy, int.Parse(_accessUserId));
-            }
+            update = _accessUserId != null ? update.Set(a => a.UpdateBy, int.Parse(_accessUserId)) : update;
             var affectedRows = await update.ExecuteAffrowsAsync();
             if (affectedRows <= 0)
             {
                 throw new Exception("删除失败.");
             }
+        }
+
+        /// <summary>
+        /// 获取用户权限
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public async Task<List<AuthUserPermissionResponse>> GetUserPermissionListAsync(int userId)
+        {
+            var listResponse = await _fsql.Select<AuthPermission>().Where(a => !a.IsDelete && !a.IsDisable).ToListAsync<AuthUserPermissionResponse>();
+            var userPermissions = await _fsql.Select<AuthUserPermission>().Where(a => a.UserId == userId && !a.IsDelete).ToListAsync();
+            var permissionIds = new HashSet<int>(userPermissions.Select(a => a.PermissionId));
+            foreach (var item in listResponse)
+            {
+                item.HasPermission = permissionIds.Contains(item.Id);
+            }
+            return listResponse;
+        }
+
+        /// <summary>
+        /// 编辑用户权限
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task UpdateUserPermissionAsync(UpdateAuthUserPermissionRequest request)
+        {
+            // 获取这个用户已有的权限
+            var existingUserPermissions = await _fsql.Select<AuthUserPermission>()
+                .Where(a => a.UserId == request.UserId)
+                .Where(a => request.AuthPermissionIds.Contains(a.PermissionId))
+                .ToListAsync();
+            foreach(var oneExistingUserPermission in existingUserPermissions)
+            {
+                if (request.AuthPermissionIds.Contains(oneExistingUserPermission.PermissionId))
+                {
+                    oneExistingUserPermission.IsDelete = false; // 请求数据中有的权限，将IsDelete设置为false
+                }
+                else
+                {
+                    oneExistingUserPermission.IsDelete = true; // 请求数据中没有的权限，将IsDelete设置为true
+                }
+                oneExistingUserPermission.UpdateBy = _accessUserId != null ? int.Parse(_accessUserId) : 0;
+            }
+            // 请求数据中有，但数据库中没有，直接新增
+            var newAuthUserPermissionList = new List<AuthUserPermission>();
+            var newAuthUserPermissions = request.AuthPermissionIds.Where(permissionId => !existingUserPermissions.Any(a => a.PermissionId == permissionId))
+                .Select(permissionId => new AuthUserPermission {
+                    UserId = request.UserId,
+                    PermissionId = permissionId,
+                    IsDelete = false,
+                    CreateBy = _accessUserId != null ? int.Parse(_accessUserId) : 0,
+                    UpdateBy = _accessUserId != null ? int.Parse(_accessUserId) : 0,
+                    CreateTime = DateTime.Now,
+                    UpdateTime = DateTime.Now,
+                })
+                .ToList();
+            newAuthUserPermissionList.AddRange(newAuthUserPermissions);
+            await _fsql.Update<AuthUserPermission>().SetSource(existingUserPermissions).ExecuteAffrowsAsync();
+            await _fsql.Insert<AuthUserPermission>().AppendData(newAuthUserPermissionList).ExecuteAffrowsAsync();
         }
     }
 }

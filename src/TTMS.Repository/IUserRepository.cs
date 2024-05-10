@@ -50,5 +50,19 @@
         /// <param name="request"></param>
         /// <returns></returns>
         Task DeleteUserAsync(DeleteUserRequest request);
+
+        /// <summary>
+        /// 获取用户权限
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        Task<List<AuthUserPermissionResponse>> GetUserPermissionListAsync(int userId);
+
+        /// <summary>
+        /// 编辑用户权限
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        Task UpdateUserPermissionAsync(UpdateAuthUserPermissionRequest request);
     }
 }
