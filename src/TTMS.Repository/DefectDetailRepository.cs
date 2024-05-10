@@ -31,10 +31,7 @@
         public async Task<DefectDetailResponse> InsertDefectDetailAsync(CreateDefectDetailRequest request)
         {
             var model = _mapper.Map<CreateDefectDetailRequest, DefectDetail>(request);
-            if (_accessUserId != null)
-            {
-                model.CreateBy = int.Parse(_accessUserId);
-            }
+            model.CreateBy = _accessUserId != null ? int.Parse(_accessUserId) : model.CreateBy;
             try
             {
                 await _fsql.Insert<DefectDetail>().AppendData(model).ExecuteAffrowsAsync();

@@ -106,10 +106,8 @@
         public async Task<DemandResponse> InsertDemandAsync(CreateDemandRequest request)
         {
             var model = _mapper.Map<CreateDemandRequest, Demand>(request);
-            if (_accessUserId != null)
-            {
-                model.CreateBy = model.UpdateBy = int.Parse(_accessUserId);
-            }
+            model.CreateBy = _accessUserId != null ? int.Parse(_accessUserId) : model.CreateBy;
+            model.UpdateBy = _accessUserId != null ? int.Parse(_accessUserId) : model.UpdateBy;
             try
             {
                 await InsertAsync(model);
@@ -134,10 +132,7 @@
                 throw new Exception("Demand does not exist.");
             }
             _mapper.Map(request, model);
-            if (_accessUserId != null)
-            {
-                model.UpdateBy = int.Parse(_accessUserId);
-            }
+            model.UpdateBy = _accessUserId != null ? int.Parse(_accessUserId) : model.UpdateBy;
             model.UpdateTime = DateTime.Now;
             try
             {
@@ -251,10 +246,7 @@
                 .Set(a => a.IsDelete, true)
                 .Set(a => a.UpdateTime, DateTime.Now)
                 .Where(a => request.DemandIds.Contains(a.Id));
-            if (_accessUserId != null)
-            {
-                update = update.Set(a => a.UpdateBy, int.Parse(_accessUserId));
-            }
+            update = _accessUserId != null ? update.Set(a => a.UpdateBy, int.Parse(_accessUserId)) : update;
             var affectedRows = await update.ExecuteAffrowsAsync();
             if (affectedRows <= 0)
             {

@@ -141,10 +141,8 @@
         public async Task<DefectResponse> InsertDefectAsync(CreateDefectRequest request)
         {
             var model = _mapper.Map<CreateDefectRequest, Defect>(request);
-            if (_accessUserId != null)
-            {
-                model.CreateBy = model.UpdateBy = int.Parse(_accessUserId);
-            }
+            model.CreateBy = _accessUserId != null ? int.Parse(_accessUserId) : model.CreateBy;
+            model.UpdateBy = _accessUserId != null ? int.Parse(_accessUserId) : model.UpdateBy;
             try
             {
                 await InsertAsync(model);
@@ -169,10 +167,7 @@
                 throw new Exception("Defect does not exist.");
             }
             _mapper.Map(request, model);
-            if (_accessUserId != null)
-            {
-                model.UpdateBy = int.Parse(_accessUserId);
-            }
+            model.UpdateBy = _accessUserId != null ? int.Parse(_accessUserId) : model.UpdateBy;
             model.UpdateTime = DateTime.Now;
             try
             {

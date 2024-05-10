@@ -37,10 +37,8 @@
                 var model = new DefectFile();
                 model.DefectId = defectId;
                 model.Url = url;
-                if (_accessUserId != null)
-                {
-                    model.CreateBy = model.UpdateBy = int.Parse(_accessUserId);
-                }
+                model.CreateBy = _accessUserId != null ? int.Parse(_accessUserId) : model.CreateBy;
+                model.UpdateBy = _accessUserId != null ? int.Parse(_accessUserId) : model.UpdateBy;
                 models.Add(model);
             }
             try
@@ -65,10 +63,7 @@
                 .Set(a => a.IsDelete, true)
                 .Set(a => a.UpdateTime, DateTime.Now)
                 .Where(a => a.Id == defectFileId);
-            if (_accessUserId != null)
-            {
-                update = update.Set(a => a.UpdateBy, int.Parse(_accessUserId));
-            }
+            update = _accessUserId != null ? update.Set(a => a.UpdateBy, int.Parse(_accessUserId)) : update;
             var affectedRows = await update.ExecuteAffrowsAsync();
             if (affectedRows <= 0)
             {
