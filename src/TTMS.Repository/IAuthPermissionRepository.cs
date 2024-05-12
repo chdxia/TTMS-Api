@@ -24,10 +24,10 @@
         Task<AuthPermissionResponse> UpdateAuthPermissionAsync(UpdateAuthPermissionRequest request);
 
         /// <summary>
-        /// 删除权限
+        /// 删除权限;递归删除
         /// </summary>
-        /// <param name="request"></param>
+        /// <param name="authPermissionId"></param>
         /// <returns></returns>
-        Task DeleteAuthPermissionAsync(DeleteAuthPermissionRequest request);
+        Task DeleteAuthPermissionAsync(int authPermissionId);
     }
 }

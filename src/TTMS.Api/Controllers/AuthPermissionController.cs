@@ -58,15 +58,15 @@
         }
 
         /// <summary>
-        /// 批量删除权限
+        /// 删除权限
         /// </summary>
-        /// <param name="request"></param>
+        /// <param name="id"></param>
         /// <returns></returns>
-        [HttpDelete("DeleteAuthPermission")]
+        [HttpDelete("{id}/DeleteAuthPermission")]
         [ProducesResponseType(200, Type = typeof(ApiResultModel))]
-        public async Task<IActionResult> DeleteAuthPermissionAsync([FromBody] DeleteAuthPermissionRequest request)
+        public async Task<IActionResult> DeleteAuthPermissionAsync(int id)
         {
-            await _authPermissionRepository.DeleteAuthPermissionAsync(request);
+            await _authPermissionRepository.DeleteAuthPermissionAsync(id);
             return ToSuccessResult();
         }
     }

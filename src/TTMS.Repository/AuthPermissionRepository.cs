@@ -109,34 +109,35 @@
         }
 
         /// <summary>
-        /// 删除权限
+        /// 删除权限;递归删除
         /// </summary>
-        /// <param name="request"></param>
+        /// <param name="authPermissionId"></param>
         /// <returns></returns>
-        public async Task DeleteAuthPermissionAsync(DeleteAuthPermissionRequest request)
+        /// <exception cref="Exception"></exception>
+        public async Task DeleteAuthPermissionAsync(int authPermissionId)
         {
-            if (!request.AuthPermissionIds.Any())
+            List<int> permissionIds = new List<int>();
+            async Task DeletePermissionRecursively(int authPermissionId)
             {
-                throw new Exception("权限Id为空，请填写有效权限Id.");
+                // 当前权限加入待删除列表
+                permissionIds.Add(authPermissionId);
+                // 查询子权限
+                var permissionsToDelete = _fsql.Select<AuthPermission>().Where(a => a.ParentId == authPermissionId).ToList();
+                // 递归查询子权限
+                foreach (var permission in permissionsToDelete)
+                {
+                    await DeletePermissionRecursively(permission.Id);
+                }
             }
-            var existingAuthPermissionIds = await _fsql.Select<AuthPermission>()
-                .Where(a => request.AuthPermissionIds.Contains(a.Id))
-                .ToListAsync();
-            var nonExistingAuthPermissionIds = request.AuthPermissionIds.Except(existingAuthPermissionIds.Select(a => a.Id));
-            if (nonExistingAuthPermissionIds.Any())
-            {
-                throw new Exception($"删除失败，以下权限ID不存在: {string.Join(", ", nonExistingAuthPermissionIds)}.");
-            }
+            // 找出当前权限及其子权限
+            await DeletePermissionRecursively(authPermissionId);
+            // 全部标记删除
             var update = _fsql.Update<AuthPermission>()
                 .Set(a => a.IsDelete, true)
                 .Set(a => a.UpdateTime, DateTime.Now)
-                .Where(a => request.AuthPermissionIds.Contains(a.Id));
+                .Where(a => permissionIds.Contains(a.Id));
             update = _accessUserId != null ? update.Set(a => a.UpdateBy, int.Parse(_accessUserId)) : update;
-            var affectedRows = await update.ExecuteAffrowsAsync();
-            if (affectedRows <= 0)
-            {
-                throw new Exception("删除失败.");
-            }
+            await update.ExecuteAffrowsAsync();
         }
     }
 }
