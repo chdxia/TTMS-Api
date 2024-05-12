@@ -1,6 +1,6 @@
 ﻿namespace TTMS.Service
 {
-    public class AuthPermissionService
+    public class AuthPermissionService : IAuthPermissionService
     {
         public async Task<bool> HasPermissionAsync(string interfaceName, string userId)
         {
